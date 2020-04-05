@@ -1,0 +1,11 @@
+<h1>Hello, {{ handle }},</h1>
+
+<h2>what a great day for a game of Less-Than-Two!</h2>
+
+<h3>Let's see who else is here ...</h3>
+
+<ol>
+{% for player in players %}
+  <li>{{ players[player]['handle'] }}</li>
+{% endfor %}
+</ol>
