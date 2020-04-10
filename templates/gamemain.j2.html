@@ -1,11 +1,118 @@
-<h1>Hello, {{ handle }},</h1>
+{% include "header.j2.html" %}
 
-<h2>what a great day for a game of Less-Than-Two!</h2>
+<div id="app">
+  <div class="container">
 
-<h3>Let's see who else is here ...</h3>
+    
+    <div class="jumbotron text-center">
+      <h3 v-if='me'>Hello, {{ me.name }}</h3>
+      <h4>what a great day for a game of Less-Than-Two!</h4>
+      <h5>Let's see who else is here ...</h5>
+    </div>
+    
+    <div class="board row">
+      <div v-for="(player) in game.players" v-bind:class="{ me: player.is_me, 'bg-primary': player.is_me, 'bg-secondary': player.is_me }" class="player card col-sm-2">
+        <!-- <div class="card-header"> -->
+          {{ player.name }}
+          <!-- </div> -->
+          <!-- <div class="card-body"> -->
+            <img src="/static/image/default_person.png" style="width: 100%; height: auto;">
+            <button v-if="player.actions.remove" class="btn-danger" v-on:click="remove(player.actions.remove.url)">&#x1f5d1;</button>
+            <!-- </div>         -->
+          </div>
+        </div> 
+        
+        <div v-if="!me">
+          <transition name="modal">
+            <div class="modal-mask">
+              <div class="modal-wrapper">
+                <div class="modal-dialog" role="document">
+                  <div class="modal-content">
+                    <form action="/default/join" method="POST">
+                      <div class="modal-header">
+                        <h5 class="modal-title">Hi, stranger! You're welcome to join the game.</h5>
+                      </div>
+                      <div class="modal-body">
+                        <p>Here's how we should call you:
+                          <input type="text" name="name" value="Mysterious stranger" autofocus></p>
+                        </div>
+                        <div class="modal-footer">
+                          <button type="submit" class="btn btn-primary" >Yap, I'm in!</button>
+                          <!--input type="submit" value="Yap, I'm in!"-->
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </transition>
+      </div>
 
-<ol>
-{% for player in players %}
-  <li>{{ players[player]['handle'] }}</li>
-{% endfor %}
-</ol>
+      <div class="debug row">
+        {{ game }}
+      </div>
+
+    </div>
+  </div>
+  
+  <script>
+  var game_state_url = "{{{ url_for('state') }}}"
+
+  var socket = io()
+  console.log(socket)
+  socket.on('connect', function() {
+    console.log('>>> sending message via sock')
+    socket.emit('message', {data: 'Connected'})
+  })
+
+  socket.on('player notification', function(msg) {
+    clientVersion = app.updateState(msg.version)
+  })
+</script>
+
+<script>
+  var app = new Vue({
+    el: '#app',
+    data: {
+      game: {
+        version: -1,
+        players: []
+      }
+    },
+
+    mounted: function() {
+      this.updateState()
+    },
+
+    methods: {
+      updateState: function(serverVersion) {
+        clientVersion = this.game.version
+        if (!serverVersion || serverVersion >= clientVersion) {
+          console.log('>>> update state from ' + clientVersion + " to " + serverVersion + ".")
+          var self = this
+          axios.get(game_state_url).then(function(resp){
+            console.log(resp.data)
+            self.$set(self.game = resp.data)
+          }) 
+        }
+      },
+      rename: function(url, newName) {
+        console.log(">>> remove(" + url + + "," + newName + ")")
+        axios.put(url, newName)
+      },
+      remove: function(url) {
+        console.log(">>> remove(" + url + ")")
+        axios.delete(url)
+      },
+    },
+    computed: {
+      me: function() {
+        for (const player of this.game.players) {
+          if (player.is_me) {
+            return player
+          }
+        }
+      }
+    }
+  })
+</script>

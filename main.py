@@ -1,35 +1,82 @@
+from vueflask import VueFlask
 from flask import Flask, render_template, session, redirect, request
-from uuid import uuid4
+from flask_socketio import SocketIO
 
-app = Flask(__name__)
+import json
+import config
+import game
+
+player2sid = {}
+
+app = VueFlask(__name__)
 app.secret_key = '39fa7d3ccfba321b208706903d81ebcfcee30ecdfc578602'
 
-players = {}
+socketio = SocketIO(app)
+
+##
+# auxiliary 
+##
+
+def pid():
+  return session.get('pid')
+
+##
+# SocketIO 
+##
+
+@socketio.on('message')
+def handle_my_event(msg):
+  print('>>> Received client message: "%s"' % msg)
+
+def updateAllClients(game):
+  socketio.emit('player notification', game.stateHead())
+
+##
+# REST endpoints
+##
+
+@app.route('/default/player/<pid>', methods=['DELETE'])
+def delete_player(pid):
+  print(f'delete player: {pid}')
+  game.removePlayer(pid)
+  updateAllClients(game)
+  return ''
+
+@app.route('/default/player/<pid>', methods=['DELETE'])
+def rename_player(pid, new_name):
+  print(f'rename_player({pid}, {new_name})' )
+  game.renamePlayer(pid, new_name)
+  return ''
 
 @app.route('/')
 def index():
-  player_id = session.get('player_id')
-  if not player_id or player_id not in players:
-    return redirect('/join')
+  return redirect('/default')
 
-  handle = players[player_id].get('handle')
-  return render_template('gamemain.j2.html', handle=handle, players=players)
+@app.route('/default')
+def default():
+  pid = session.get('pid')
+  if not pid:
+    pid = game.genPlayerId()
+    print(f'>>> Created pid "{pid}"')
+    session['pid'] = pid
+  return render_template('gamemain.j2.html')
 
+@app.route('/default/state')
+def state():
+  pid = session.get('pid')
+  state = game.viewerState(pid)
+  return state
 
-@app.route('/join', methods=['GET', 'POST'])
+@app.route('/default/join', methods=['GET', 'POST'])
 def join():
-  player_id = session.get('player_id')
-  if player_id and request.method == 'POST':
-    players[player_id] = {
-      'handle': request.form.get('handle')
-    }
-    return redirect('/')
-
-  if request.method == 'GET':
-    player_id = str(uuid4())
-    print('>> Created player_id "%s"' % player_id)
-    session['player_id'] = player_id
-    return render_template('join.j2.html')
+  pid = session.get('pid')
+  if request.method == 'POST' and pid:
+    name = request.form.get('name')
+    game.addPlayer(pid, name)
+    updateAllClients(game)  
+  return redirect('/')
 
 if __name__ == '__main__':
-  app.run(host='0.0.0.0', port='3000')
+  host = config.get('server.host')
+  port = config.get('server.port')
+  socketio.run(app, host=host, port=int(port))
