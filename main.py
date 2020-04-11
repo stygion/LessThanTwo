@@ -23,7 +23,7 @@ game = LessThanTwo()
 # auxiliary 
 ##
 
-def genPlayerId(self):
+def genPlayerId():
     return str(uuid4())
 
 def pid():
@@ -55,7 +55,7 @@ def index():
 def default():
   pid = session.get('pid')
   if not pid:
-    pid = game.genPlayerId()
+    pid = genPlayerId()
     print(f'>>> Created pid "{pid}"')
     session['pid'] = pid
   return render_template('gamemain.j2.html')
@@ -75,8 +75,8 @@ def rename_player(pid, new_name):
 @app.route('/default/perspective')
 def perspective():
   pid = session.get('pid')
-  state = game.perspective(pid)
-  return state
+  perspective = game.perspective(pid)
+  return perspective
 
 @app.route('/default/join', methods=['POST'])
 def join():
@@ -87,6 +87,51 @@ def join():
     broadcastHead(game)  
     # TODO proper return value
   return redirect('/')
+
+##
+# specific for LessThanTwo
+##
+
+@app.route('/default/reset', methods=['POST'])
+def next_phase():
+  body = request.json
+  print(f'>>> next_phase, body = {body}')
+  game.nextPhase()
+  return broadcastHead(game)
+
+@app.route('/default/guesser', methods=['PUT'])
+def choose_guesser():
+  newVal = request.json['newVal']
+  print(f'>>> choose_guesser, newVal = {newVal}')
+  game.setGuesser(newVal)
+  return broadcastHead(game)
+
+@app.route('/default/solution', methods=['PUT'])
+def choose_solution():
+  body = request.json
+  print(f'>>> choose_solution, body = {body}')
+  # TODO
+  return broadcastHead(game)
+   
+@app.route('/default/clues', methods=['POST'])
+def give_clue():
+  body = request.json
+  print(f'>>> give_clue, body = {body}')
+  # TODO
+  return broadcastHead(game)
+
+@app.route('/default/guess', methods=['PUT'])
+def make_guess():
+  body = request.json
+  print(f'>>> give_clue, body = {body}')
+  # TODO
+  return broadcastHead(game)
+
+
+
+##
+# start app
+##
 
 if __name__ == '__main__':
   host = config.get('server.host')

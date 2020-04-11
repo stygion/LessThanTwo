@@ -53,10 +53,12 @@ class Boardgame:
         }
 
     def perspective(self, viewer_pid):
-        return {
+        perspective = {
             'version': self.version,
-            'players': [
-                { 
+            'players': []
+        }
+        for pid, player in self.players.items():
+            perspective['players'].append({ 
                     'pid': pid,
                     'name': player.get('name'),
                     'actions': {
@@ -68,6 +70,7 @@ class Boardgame:
                         }
                     },
                     'is_me': pid == viewer_pid,
-                } for pid, player in self.players.items()
-            ]
-        }
+                })
+
+        return perspective
+

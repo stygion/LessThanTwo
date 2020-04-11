@@ -3,24 +3,6 @@
 <div id="app">
   <div class="container">
 
-    <div class="jumbotron text-center">
-      <h3 v-if='me'>Hello, {{ me.name }}</h3>
-      <h4>what a great day for a game of Less-Than-Two!</h4>
-      <h5>Let's see who else is here ...</h5>
-    </div>
-    
-    <div class="board row">
-      <div v-for="(player) in game.players" v-bind:class="{ me: player.is_me, 'bg-primary': player.is_me, 'bg-secondary': player.is_me }" class="player card col-sm-2">
-        <!-- <div class="card-header"> -->
-          {{ player.name }}
-        <!-- </div> -->
-        <!-- <div class="card-body"> -->
-          <img src="/static/image/default_person.png" style="width: 100%; height: auto;">
-          <button v-if="player.actions.remove" class="btn-danger" v-on:click="remove(player.actions.remove.url)">&#x1f5d1;</button>
-        <!-- </div>         -->
-      </div>
-    </div>
-        
     <div v-if="!me" class="modal-mask">
       <div class="modal-wrapper">
         <div class="modal-dialog" role="document">
@@ -43,6 +25,49 @@
       </div>
     </div>
 
+    <!--div class="jumbotron text-center">
+      <h3 v-if='me'>Hello, {{ me.name }}</h3>
+      <h4>what a great day for a game of Less-Than-Two!</h4>
+      <h5>Let's see who else is here ...</h5>
+    </div-->
+    
+    
+    <div class="card mt-3">
+      <div class="card-header">
+        <strong v-if="me && me.name">Hi {{ me.name }}! Let's see who else is here ...</strong>
+      </div>
+      <div class="card-group">
+        <div v-for="(player) in game.players" v-bind:class="{ me: player.is_me, 'bg-primary': player.is_me, 'bg-secondary': player.is_me }" class="player card col-sm-2">
+          {{ player.name }}
+          <img src="/static/image/default_person.png" style="width: 100%; height: auto;">
+          <button v-if="player.actions.remove" class="btn-danger" v-on:click="remove(player.actions.remove.url)">&#x1f5d1;</button>
+        </div>
+      </div>
+    </div>
+
+    
+    <div v-if="game.stage.phase == 'choose_guesser'" class="card card-primary mt-3">
+      <div class="card-header">
+        <strong>Phase: Ratenden wählen</strong>
+      </div>
+      <div class="card-body">
+        <div v-for="player in game.players">
+          <input type="radio" v-model="game.stage.guesser_pid" :value="player.pid">
+          {{ player.name }}
+        </div>
+      </div>
+      <div class="card-footer text-right">
+        Gewählt: <strong>{{ game.stage.guesser_pid }}</strong>
+        <button v-if="'next_phase' in game.stage.actions" 
+        class="btn btn-primary"
+        @click='nextPhase(game.stage.actions.next_phase.url)'>Phase beenden</button>
+        <div class="debug">{{game.players}}</div>
+      </div>
+
+    </div>
+
+
+        
     <div class="debug row">
       {{ game }}
     </div>
@@ -71,7 +96,21 @@
     data: {
       game: {
         version: -1,
-        players: []
+        players: [],
+        stage: {
+          actions: {
+            next_phase: true
+          },
+          guesser: null
+        }
+      }
+    },
+
+    watch: {
+      'game.stage.guesser_pid': function(newVal, oldVal) {
+        action = this.game.stage.actions.choose_guesser
+        url = action && action.url
+        this.chooseGuesser(url, newVal)
       }
     },
 
@@ -100,6 +139,14 @@
         console.log(">>> remove(" + url + ")")
         axios.delete(url)
       },
+      nextPhase: function(url) {
+        console.log(">>> nextPhase(" + url + ")")
+        axios.post(url)
+      },
+      chooseGuesser: function(url, pid) {
+        console.log(">>> chooseGuesser(" + url + + ", " + pid +")")
+        axios.put(url, {'newVal': pid})
+      }
     },
     computed: {
       me: function() {
