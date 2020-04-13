@@ -61,7 +61,8 @@ def default():
     pid = genPlayerId()
     print(f'>>> Created pid "{pid}"')
     session['pid'] = pid
-  return render_template('gamemain.j2.html')
+  default_name = session.get('player_name', 'Mysterious stranger')
+  return render_template('gamemain.j2.html', default_name=default_name)
 
 @app.route('/default/player/<pid>', methods=['DELETE'])
 def delete_player(pid):
@@ -73,6 +74,7 @@ def delete_player(pid):
 def rename_player(pid):
   value = newVal()
   print(f'rename_player({pid}, {value})' )
+  session['player_name'] = value
   game.renamePlayer(pid, value)
   return broadcastHead(game)
 
@@ -100,6 +102,7 @@ def join():
   pid = session.get('pid')
   if request.method == 'POST' and pid:
     name = request.form.get('name')
+    session['player_name'] = name    
     game.addPlayer(pid, name)
     broadcastHead(game)  
     # TODO proper return value

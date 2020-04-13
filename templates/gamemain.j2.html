@@ -13,7 +13,7 @@
               </div>
               <div class="modal-body">
                 <p>Here's how we should call you:
-                  <input type="text" name="name" value="Mysterious stranger" autofocus onFocus="this.select()"></p>
+                  <input type="text" name="name" value="{{{ default_name }}}" autofocus onFocus="this.select()"></p>
               </div>
               <div class="modal-footer">
                   <button type="submit" class="btn btn-primary" >Yap, I'm in!</button>
@@ -72,8 +72,7 @@
       <div v-if="Object.keys(game.clues).length > 0" class="card-body">
         <div class="card-group">
           <div class="card col-sm-3" :class="clue.hidden ? 'bg-secondary': 'bg-primary'" v-for="clue in game.clues">
-          <!-- <div class="card col-sm-3" v-for="clue in game.clues"> -->
-          <div class="card-header">
+            <div class="card-header">
               <small>{{clue.name}}</small>
             </div>
             <div class="card-body">
