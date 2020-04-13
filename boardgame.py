@@ -52,25 +52,33 @@ class Boardgame:
             'version': self.version,
         }
 
-    def perspective(self, viewer_pid):
-        perspective = {
-            'version': self.version,
-            'players': []
-        }
+    def perspective_players(self, viewer_pid):
+        players = []
         for pid, player in self.players.items():
-            perspective['players'].append({ 
+            player = { 
                     'pid': pid,
                     'name': player.get('name'),
                     'actions': {
                         'remove': {
+                            'method': 'DELETE',
                             'url': '/default/player/%s' % pid
                         },
                         'rename': {
+                            'method': 'PUT',
                             'url': '/default/player/%s/name' % pid
                         }
                     },
                     'is_me': pid == viewer_pid,
-                })
+                }
+            players.append(player)
+        return players
+
+    def perspective(self, viewer_pid):
+        perspective = {
+            'version': self.version,
+            'players': self.perspective_players(viewer_pid)
+        }
+
 
         return perspective
 

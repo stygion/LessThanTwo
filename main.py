@@ -29,6 +29,9 @@ def genPlayerId():
 def pid():
   return session.get('pid')
 
+def newVal():
+  return request.json['newVal']
+
 def broadcastHead(game):
   head = game.head()
   head['url'] = url_for('perspective')
@@ -66,19 +69,33 @@ def delete_player(pid):
   game.removePlayer(pid)
   return broadcastHead(game)
 
-@app.route('/default/player/<pid>', methods=['DELETE'])
-def rename_player(pid, new_name):
-  print(f'rename_player({pid}, {new_name})' )
-  game.renamePlayer(pid, new_name)
+@app.route('/default/player/<pid>/name', methods=['DELETE'])
+def rename_player(pid):
+  value = newVal()
+  print(f'rename_player({pid}, {value})' )
+  game.renamePlayer(pid, value)
   return broadcastHead(game)
 
-@app.route('/default/perspective')
+@app.route('/default/game/clues/<pid>/hidden', methods=['PUT'])
+def set_clue_hidden(pid):
+  value = newVal()
+  print(f'set_clue_hidden({pid}, {value})' )
+  game.setClueHidden(pid, value)
+  return broadcastHead(game)  
+
+@app.route('/default/game/', methods=['DELETE'])
+def reset_game():
+  print(f'reset_game()')
+  game.reset()
+  return broadcastHead(game)
+
+@app.route('/default/game/perspective')
 def perspective():
   pid = session.get('pid')
   perspective = game.perspective(pid)
   return perspective
 
-@app.route('/default/join', methods=['POST'])
+@app.route('/default/players', methods=['POST'])
 def join():
   pid = session.get('pid')
   if request.method == 'POST' and pid:
@@ -94,8 +111,7 @@ def join():
 
 @app.route('/default/reset', methods=['POST'])
 def next_phase():
-  body = request.json
-  print(f'>>> next_phase, body = {body}')
+  print(f'>>> next_phase')
   game.nextPhase()
   return broadcastHead(game)
 
@@ -108,23 +124,23 @@ def choose_guesser():
 
 @app.route('/default/solution', methods=['PUT'])
 def choose_solution():
-  body = request.json
-  print(f'>>> choose_solution, body = {body}')
-  # TODO
+  newVal = request.json.get('newVal')
+  print(f'>>> choose_solution, body = {newVal}')
+  game.setSolution(newVal)
   return broadcastHead(game)
    
 @app.route('/default/clues', methods=['POST'])
 def give_clue():
-  body = request.json
-  print(f'>>> give_clue, body = {body}')
-  # TODO
+  newVal = request.json.get('newVal')
+  print(f'>>> give_clue, body = {newVal}')
+  game.addClue(pid(), newVal)
   return broadcastHead(game)
 
 @app.route('/default/guess', methods=['PUT'])
 def make_guess():
-  body = request.json
-  print(f'>>> give_clue, body = {body}')
-  # TODO
+  newVal = request.json.get('newVal')
+  print(f'>>> give_clue, body = {newVal}')
+  game.makeGuess(newVal)
   return broadcastHead(game)
 
 
