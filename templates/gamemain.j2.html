@@ -46,8 +46,8 @@
     </div>
 
 
-    <div class="card card-primary mt-3">
-      <div class="card-header">
+    <div class="card mt-3">
+      <div class="card-header bg-primary">
         <strong>Phase: {{ game.phase.description }}</strong>
       </div> 
 
@@ -72,13 +72,13 @@
       <div v-if="Object.keys(game.clues).length > 0" class="card-body">
         <div class="card-group">
           <div class="card col-sm-3" :class="clue.hidden ? 'bg-secondary': 'bg-primary'" v-for="clue in game.clues">
-            <div class="card-header">
+            <div class="card-header"  :class="clue.hidden ? 'bg-secondary': 'bg-primary'">
               <small>{{clue.name}}</small>
             </div>
             <div class="card-body">
               <strong>{{clue.word}}</strong>
             </div>
-            <div v-if="clue.actions.set_hidden" class="card-footer">
+            <div v-if="clue.actions.set_hidden" class="card-footer"  :class="clue.hidden ? 'bg-secondary': 'bg-primary'">
               <input type="checkbox" 
               v-if="clue.actions.set_hidden"
               v-model="game.clues[clue.pid].hidden" 
@@ -96,7 +96,10 @@
       </div>
 
       <div class="card-footer text-right">
+        <input v-if="game.actions.reset_game" data-toggle="toggle"
+            type="checkbox" v-model="reset_enabled">
         <button v-if="game.actions.reset_game"
+            :disabled="!reset_enabled"
             class="btn btn-danger btn-small"
             @click="resetGame(game.actions.reset_game.url)">
           <small>
@@ -142,6 +145,7 @@
     el: '#app',
     data: {
       show_debug: false,
+      reset_enabled: false,
       game: {
         version: -1,
         players: [],
