@@ -85,7 +85,7 @@ def set_clue_hidden(pid):
   game.setClueHidden(pid, value)
   return broadcastHead(game)  
 
-@app.route('/default/game/', methods=['DELETE'])
+@app.route('/default/game', methods=['DELETE'])
 def reset_game():
   print(f'reset_game()')
   game.reset()

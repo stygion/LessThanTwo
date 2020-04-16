@@ -48,8 +48,8 @@
 
     <div class="card mt-3">
       <div class="card-header bg-primary">
-        <strong>Phase: {{ game.phase.description }}</strong>
-      </div> 
+        <p><strong>Phase: {{ game.phase.description }}</strong></p>
+      </div>   
 
       <div v-if="game.actions.choose_guesser" class="card-body">
         <div v-for="player in game.players">
@@ -59,8 +59,11 @@
       </div>
 
       <div v-if="game.actions.choose_word" class="card-body">
-          <input type="text" v-model="game.solution">
-      </div>
+        <input type="text" v-model="game.solution">
+      </div>  
+      <div v-else-if="game.solution" class="card-body">
+        Begriff: {{ game.solution }}
+      </div>        
 
       <div v-if="game.actions.give_clue" class="card-body">
         <input type="text" ref="my_clue">
@@ -69,8 +72,16 @@
           Hinweis abgeben</button>
       </div>
 
-      <div v-if="Object.keys(game.clues).length > 0" class="card-body">
+      <div class="card-body">
         <div class="card-group">
+          <div class="card col-sm-3 bg-info" v-if="game.guess">
+            <div class="card-header bg-info">
+              <small>Geratener Begriff</small>
+            </div>
+            <div class="card-body">
+              <strong>{{ game.guess }}</strong>
+            </div>
+          </div>
           <div class="card col-sm-3" :class="clue.hidden ? 'bg-secondary': 'bg-primary'" v-for="clue in game.clues">
             <div class="card-header"  :class="clue.hidden ? 'bg-secondary': 'bg-primary'">
               <small>{{clue.name}}</small>
@@ -87,11 +98,11 @@
           </div>
         </div>
       </div>
-
+          
       <div v-if="game.actions.make_guess" class="card-body">
-        <input type="text" v-model="game.solution">
+        <input type="text" v-model="game.guess">
         <button class="btn btn-primary"
-            @click="execute(game.actions.make_guess, game.solution)">
+            @click="execute(game.actions.make_guess, game.guess)">
           Tipp abgeben</button>
       </div>
 
@@ -161,21 +172,11 @@
     },
 
     watch: {
-      // 'game.guesser_pid': function(newVal, oldVal) {
-      //   action = this.game.actions.choose_guesser
-      //   url = action && action.url
-      //   this.chooseGuesser(url, newVal)
-      // },
       'game.solution': function(newVal, oldVal) {
         action = this.game.actions.choose_word
         url = action && action.url
         this.chooseWord(url, newVal)
-      },
-      'game.guess': function(newVal, oldVal) {
-        action = this.game.actions.make_guess
-        url = action && action.url
-        this.makeGuess(url, newVal)
-      },
+      }
     },
 
     mounted: function() {
