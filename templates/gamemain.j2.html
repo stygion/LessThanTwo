@@ -38,38 +38,41 @@
       </div>
       <div class="card-group">
         <div v-for="(player) in game.players" v-bind:class="{ me: player.is_me, 'bg-primary': player.is_me, 'bg-secondary': !player.is_me }" class="player card col-sm-2">
-          {{ player.name }}
-          <img src="/static/image/default_person.png" style="width: 100%; height: auto;">
-          <button v-if="player.actions && 'remove' in player.actions" class="btn-danger" v-on:click="remove(player.actions.remove.url)">&#x1f5d1;</button>
+          <!-- <div class="card-header"> -->
+            <p>{{ player.name }}</p>
+          <!-- </div> -->
+          <!-- <div class="card-body"> -->
+            <img src="/static/image/default_person.png" style="width: 100%; height: auto;">
+          <!-- </div> -->
+          <!-- <div class="card-footer"> -->
+            <button v-if="player.actions && 'remove' in player.actions" class="btn-danger" v-on:click="remove(player.actions.remove.url)">&#x1f5d1;</button>
+          <!-- </div> -->
         </div>
       </div>
     </div>
-
 
     <div class="card mt-3">
       <div class="card-header bg-primary">
         <p><strong>Phase: {{ game.phase.description }}</strong></p>
       </div>   
 
-      <div v-if="game.actions.choose_guesser" class="card-body">
-        <div v-for="player in game.players">
-          <input type="radio" v-model="game.guesser_pid" :value="player.pid" @change="execute(game.actions.choose_guesser, player.pid)">
-          {{ player.name }}
+      <div class="card-group">
+        <div class="card col-sm-4 bg-info" v-if="game.solution">
+          <div class="card-header bg-info">
+            <small>zu ratender Begriff</small>
+          </div>
+          <div class="card-body">
+            <strong>{{ game.solution }}</strong>
+          </div>
         </div>
-      </div>
-
-      <div v-if="game.actions.choose_word" class="card-body">
-        <input type="text" v-model="game.solution">
-      </div>  
-      <div v-else-if="game.solution" class="card-body">
-        Begriff: {{ game.solution }}
-      </div>        
-
-      <div v-if="game.actions.give_clue" class="card-body">
-        <input type="text" ref="my_clue">
-        <button class="btn btn-primary"
-            @click='giveClue(game.actions.give_clue.url, $refs["my_clue"].value)'>
-          Hinweis abgeben</button>
+        <div class="card col-sm-4 bg-info" v-if="game.guess">
+          <div class="card-header bg-info">
+            <small>geratener Begriff</small>
+          </div>
+          <div class="card-body">
+            <strong>{{ game.guess }}</strong>
+          </div>
+        </div>        
       </div>
 
       <div class="card-body">
@@ -99,6 +102,27 @@
         </div>
       </div>
           
+      <div v-if="game.actions.choose_guesser" class="card-body">
+        <div v-for="player in game.players">
+          <input type="radio" v-model="game.guesser_pid" :value="player.pid" @change="execute(game.actions.choose_guesser, player.pid)">
+          {{ player.name }}
+        </div>
+      </div>
+
+      <div v-if="game.actions.choose_word" class="card-body">
+        <input type="text" v-model="game.solution">
+      </div>  
+      <!-- <div v-else-if="game.solution" class="card-body">
+        Zu ratender Begriff: {{ game.solution }}
+      </div>         -->
+
+      <div v-if="game.actions.give_clue" class="card-body">
+        <input type="text" ref="my_clue">
+        <button class="btn btn-primary"
+            @click='giveClue(game.actions.give_clue.url, $refs["my_clue"].value)'>
+          Hinweis abgeben</button>
+      </div>
+
       <div v-if="game.actions.make_guess" class="card-body">
         <input type="text" v-model="game.guess">
         <button class="btn btn-primary"
