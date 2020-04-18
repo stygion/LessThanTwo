@@ -10,6 +10,7 @@ from uuid import uuid4
 # custom
 import config
 from lessthantwo import LessThanTwo
+from lessthantwo_web import LessThanTwo_WebAdapter
 
 # init web
 app = VueFlask(__name__)
@@ -18,6 +19,7 @@ socketio = SocketIO(app)
 
 # init game
 game = LessThanTwo()
+webadapter = LessThanTwo_WebAdapter(game)
 
 ##
 # auxiliary 
@@ -94,7 +96,7 @@ def reset_game():
 @app.route('/default/game/perspective')
 def perspective():
   pid = session.get('pid')
-  perspective = game.perspective(pid)
+  perspective = webadapter.perspective(pid)
   return perspective
 
 @app.route('/default/players', methods=['POST'])
@@ -114,7 +116,7 @@ def join():
 
 @app.route('/default/reset', methods=['POST'])
 def next_phase(): 
-  print(f'>>> next_phase')
+  print(f'>>> next_phase (current phase = {game.phase})')
   game.nextPhase()
   return broadcastHead(game)
 

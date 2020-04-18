@@ -4,6 +4,7 @@ class Boardgame:
         self.players = {}
         self.version = 1
 
+
     ##
     # player actions
     ##
@@ -51,34 +52,4 @@ class Boardgame:
             'room': 'default',
             'version': self.version,
         }
-
-    def perspective_players(self, viewer_pid):
-        players = []
-        for pid, player in self.players.items():
-            player = { 
-                    'pid': pid,
-                    'name': player.get('name'),
-                    'actions': {
-                        'remove': {
-                            'method': 'DELETE',
-                            'url': '/default/player/%s' % pid
-                        },
-                        'rename': {
-                            'method': 'PUT',
-                            'url': '/default/player/%s/name' % pid
-                        }
-                    },
-                    'is_me': pid == viewer_pid,
-                }
-            players.append(player)
-        return players
-
-    def perspective(self, viewer_pid):
-        perspective = {
-            'version': self.version,
-            'players': self.perspective_players(viewer_pid)
-        }
-
-
-        return perspective
 

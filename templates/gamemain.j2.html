@@ -53,7 +53,7 @@
 
     <div class="card mt-3">
       <div class="card-header bg-primary">
-        <p><strong>Phase: {{ game.phase.description }}</strong></p>
+        <p><strong>Phase: {{ game.phase && game.phase.description }}</strong></p>
       </div>   
 
       <div class="card-group">
@@ -92,7 +92,7 @@
             <div class="card-body">
               <strong>{{clue.word}}</strong>
             </div>
-            <div v-if="clue.actions.set_hidden" class="card-footer"  :class="clue.hidden ? 'bg-secondary': 'bg-primary'">
+            <div v-if="clue.actions && clue.actions.set_hidden" class="card-footer"  :class="clue.hidden ? 'bg-secondary': 'bg-primary'">
               <input type="checkbox" 
               v-if="clue.actions.set_hidden"
               v-model="game.clues[clue.pid].hidden" 
@@ -110,10 +110,10 @@
       </div>
 
       <div v-if="game.actions.choose_solution" class="card-body">
-        <input type="text" ref="my-solution">
+        Neuer Begriff: <input type="text" ref="my-solution">
         <button class="btn btn-primary"
             @click='execute(game.actions.choose_solution, $refs["my-solution"].value)'>
-          Hinweis abgeben</button>        
+          Absenden</button>        
       </div>  
       <!-- <div v-else-if="game.solution" class="card-body">
         Zu ratender Begriff: {{ game.solution }}
@@ -195,14 +195,6 @@
           guesser: null
         },
         actions: {}
-      }
-    },
-
-    watch: {
-      'game.solution': function(newVal, oldVal) {
-        action = this.game.actions.choose_word
-        url = action && action.url
-        this.chooseWord(url, newVal)
       }
     },
 
