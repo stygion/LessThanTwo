@@ -1,9 +1,9 @@
+
 class Boardgame:
 
     def __init__(self):
         self.players = {}
         self.version = 1
-
 
     ##
     # player actions

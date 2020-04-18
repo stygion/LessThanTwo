@@ -1,3 +1,4 @@
+from boardgame_util import similar
 from enum import IntEnum
 from boardgame import Boardgame
 
@@ -22,7 +23,7 @@ class LessThanTwo(Boardgame):
         self.solution = None
         self.guess = None
         self.clues = {}
-        self.hiddenClues = []
+        self.duplicate_clues = set()
         self.incVersion()        
 
     def setGuesser(self, guesser_pid):
@@ -34,7 +35,14 @@ class LessThanTwo(Boardgame):
         self.solution = solution
         self.incVersion()        
 
-    def addClue(self, pid, clue):
+    def _find_similar_clues(self):
+        for this_key, this_clue in self.clues.items():
+            for that_key, that_clue in self.clues.items():
+                if this_key != that_key and similar(this_clue, that_clue):
+                    self.duplicate_clues.add(this_key)
+                    self.duplicate_clues.add(that_key)
+
+    def add_clue(self, pid, clue):
         self.clues[pid] = clue
         self.incVersion()        
 
@@ -46,20 +54,23 @@ class LessThanTwo(Boardgame):
         self.incVersion()            
 
     def hideClue(self, pid):
-        self.hiddenClues.append(pid)
+        self.duplicate_clues.add(pid)
 
     def unhideClue(self, pid):
-        self.hiddenClues.remove(pid)
+        self.duplicate_clues.remove(pid)
 
     def makeGuess(self, guess):
         self.guess = guess
-        self.nextPhase()
+        self.next_phase()
         self.incVersion()
 
-    def nextPhase(self):
+    def next_phase(self):
         if self.phase == list(Phase)[-1]:
             self.reset()
         else:            
             self.phase = Phase(self.phase.value + 1)
+        if self.phase is Phase.CROP_CLUES:
+            self._find_similar_clues()
+
         self.incVersion()
 

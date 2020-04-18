@@ -117,7 +117,7 @@ def join():
 @app.route('/default/reset', methods=['POST'])
 def next_phase(): 
   print(f'>>> next_phase (current phase = {game.phase})')
-  game.nextPhase()
+  game.next_phase()
   return broadcastHead(game)
 
 @app.route('/default/guesser', methods=['PUT'])
@@ -138,7 +138,7 @@ def choose_solution():
 def give_clue():
   newVal = request.json.get('newVal')
   print(f'>>> give_clue, body = {newVal}')
-  game.addClue(pid(), newVal)
+  game.add_clue(pid(), newVal)
   return broadcastHead(game)
 
 @app.route('/default/guess', methods=['PUT'])

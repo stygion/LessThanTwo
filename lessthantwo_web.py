@@ -102,7 +102,7 @@ class LessThanTwo_WebAdapter(object):
 
         clues = {}
         for pid, word in self.game.clues.items():
-            clue_is_hidden = pid in self.game.hiddenClues
+            clue_is_hidden = pid in self.game.duplicate_clues
             clue = {
                 'pid': pid,
                 'name': self.game.getPlayerName(pid),
@@ -121,7 +121,7 @@ class LessThanTwo_WebAdapter(object):
             
         if not sees_all_clues:
             for pid, clue in clues.items():
-                if any([pid in self.game.hiddenClues,
+                if any([pid in self.game.duplicate_clues,
                         not sees_unique_clues]):
                     clue['word'] = ''
         return clues
