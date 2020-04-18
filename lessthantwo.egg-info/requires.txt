@@ -1,0 +1,2 @@
+Flask-SocketIO<5.0,>=4.2
+uuid<2.0,>=1.30
