@@ -32,12 +32,16 @@ class LessThanTwo_WebAdapter(object):
         assert isinstance(game, LessThanTwo), 'Expected an instance of LessThanTwo'
         self.game = game
 
+    def _is_guesser(self, pid):
+        return self.game.guesser_pid == pid
+
     def perspective(self, viewer_pid):
         perspective = {
+            'me': viewer_pid,
             'version': self.game.version,
             'players': self.players(viewer_pid),
             'phase': self.phase(),
-            'guesser_pid': self.game.guesser_pid,
+            'guesser': self.game.guesser_pid,
             'guess': self.game.guess,
             'solution': self.solution(viewer_pid),
             'clues': self.clues(viewer_pid),
@@ -53,7 +57,7 @@ class LessThanTwo_WebAdapter(object):
             }
 
     def players(self, viewer_pid):
-        players = []
+        players = {}
         for pid, player in self.game.players.items():
             player = { 
                     'pid': pid,
@@ -67,10 +71,9 @@ class LessThanTwo_WebAdapter(object):
                             'method': 'PUT',
                             'url': '/default/player/%s/name' % pid
                         }
-                    },
-                    'is_me': pid == viewer_pid,
+                    }
                 }
-            players.append(player)
+            players[pid] = player
         return players
 
 
@@ -80,7 +83,7 @@ class LessThanTwo_WebAdapter(object):
 
         ## determine viewer privileges
         
-        viewer_is_guesser = self.game.isGuesser(viewer_pid)
+        viewer_is_guesser = self._is_guesser(viewer_pid)
         sees_all_clues = (
             self.game.phase >= Phase.EVALUATION or
             (
@@ -125,7 +128,7 @@ class LessThanTwo_WebAdapter(object):
 
     def solution(self, viewer_pid):
         may_see_solution = (
-            not self.game.isGuesser(viewer_pid) or
+            not self._is_guesser(viewer_pid) or
             self.game.phase >= Phase.EVALUATION 
         )
         if may_see_solution:
@@ -143,16 +146,16 @@ class LessThanTwo_WebAdapter(object):
         )
         may_choose_solution = (
             phase is Phase.CHOOSE_SOLUTION and
-            not self.game.isGuesser(viewer_pid)
+            not self._is_guesser(viewer_pid)
         )
         may_give_clue = (
             phase is Phase.GIVE_CLUES and 
-            not self.game.isGuesser(viewer_pid) and
+            not self._is_guesser(viewer_pid) and
             not viewer_pid in self.game.clues
         )
         may_make_guess = (
             phase is Phase.MAKE_GUESS and
-            self.game.isGuesser(viewer_pid)
+            self._is_guesser(viewer_pid)
         )
 
         actions = {}
@@ -195,57 +198,3 @@ class LessThanTwo_WebAdapter(object):
             }
 
         return actions
-
-
-
-
-
-
-
-    ##
-    # player perspective
-    ##
-    #
-    # def get_privileges(self, viewer_pid):
-    #     privileges = [
-    #         Privilege.KICK_ANYBODY,
-    #         Privilege.RENAME_ANYBODY,
-    #         Privilege.ADVANCE_PHASE,
-    #         Privilege.RESTART_GAME
-    #     ]
-    #     if self.game.phase == Phase.CHOOSE_GUESSER:
-    #         privileges.append(Privilege.CHOOSE_GUESSER)
-    #     elif self.game.phase == Phase.CHOOSE_SOLUTION:
-    #         if self.game.isGuesser(viewer_pid):
-    #             pass
-    #         else:
-    #             privileges.append(Privilege.CHOOSE_SOLUTION)
-    #             privileges.append(Privilege.SEE_SOLUTION)
-    #     elif self.game.phase == Phase.GIVE_CLUES:
-    #         if self.game.isGuesser(viewer_pid):
-    #             pass
-    #         elif viewer_pid not in self.game.clues:
-    #             privileges.append(Privilege.SEE_SOLUTION)
-    #             privileges.append(Privilege.GIVE_CLUE)
-    #         else:
-    #             privileges.append(Privilege.SEE_SOLUTION)
-    #             privileges.append(Privilege.SEE_ALL_CLUES)
-    #     elif self.game.phase == Phase.CROP_CLUES:
-    #         if self.game.isGuesser(viewer_pid):
-    #             pass
-    #         else:
-    #             privileges.append(Privilege.SEE_SOLUTION)
-    #             privileges.append(Privilege.SEE_ALL_CLUES)
-    #             privileges.append(Privilege.CROP_CLUES)
-    #     elif self.game.phase == Phase.MAKE_GUESS:
-    #         if self.game.isGuesser(viewer_pid):
-    #             privileges.append(Privilege.SEE_OPEN_CLUES)
-    #             privileges.append(Privilege.MAKE_GUESS)
-    #         else:
-    #             privileges.append(Privilege.SEE_ALL_CLUES)
-    #             privileges.append(Privilege.SEE_SOLUTION)
-    #     elif self.game.phase == Phase.EVALUATION:
-    #         privileges.append(Privilege.SEE_SOLUTION)
-    #         privileges.append(Privilege.SEE_ALL_CLUES)
-    #         privileges.append(Privilege.SEE_EVALUATION)
-    #     return privileges

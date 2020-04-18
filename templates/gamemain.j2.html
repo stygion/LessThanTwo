@@ -3,7 +3,7 @@
 <div id="app">
   <div class="container">
 
-    <div v-if="!me" class="modal-mask">
+    <div v-if="!me_in_players" class="modal-mask">
       <div class="modal-wrapper">
         <div class="modal-dialog" role="document">
           <div class="modal-content">
@@ -30,8 +30,8 @@
         <strong v-if="me && me.name">Hi {{ me.name }}! Let's see who else is here ...</strong>
       </div> -->
       <div class="card-group">
-        <div v-for="(player) in game.players" 
-            v-bind:class="{ me: player.is_me, 'bg-primary': player.is_me, 'bg-secondary': !player.is_me }"
+        <div v-for="(player, pid) in game.players" 
+            v-bind:class="{ 'bg-primary': pid == game.guesser }"
             class="player card col-sm-2">
           <!-- <div class="card-header"> -->
             <p>{{ player.name }}</p>
@@ -51,6 +51,8 @@
         </div>
       </div>
     </div>
+
+    My PID : {{ game.my_pid }}
 
     <div class="card mt-3">
       <div class="card-header bg-primary">
@@ -137,7 +139,7 @@
         <div class="card-body">
           <div v-for="player in game.players">
             <input type="radio" 
-            v-model="game.guesser_pid" 
+            v-model="game.guesser" 
             :value="player.pid" 
             @change="execute(game.actions.choose_guesser, player.pid)">
             {{ player.name }}
@@ -283,13 +285,10 @@
         })
       },
     },
+
     computed: {
-      me: function() {
-        for (const player of this.game.players) {
-          if (player.is_me) {
-            return player
-          }
-        }
+      me_in_players: function() {
+        return this.game.me in this.game.players
       }
     }
   })

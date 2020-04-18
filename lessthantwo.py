@@ -25,16 +25,10 @@ class LessThanTwo(Boardgame):
         self.hiddenClues = []
         self.incVersion()        
 
-    def playerPids(self):
-        return [pid for pid in self.players if pid != self.guesser_pid]
-
     def setGuesser(self, guesser_pid):
         if self.isKnownPlayer(guesser_pid):
             self.guesser_pid = guesser_pid
         self.incVersion()            
-
-    def isGuesser(self, pid):
-        return self.guesser_pid == pid
 
     def setSolution(self, solution):
         self.solution = solution
