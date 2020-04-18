@@ -29,7 +29,7 @@
       <!-- <div class="card-header">
         <strong v-if="me && me.name">Hi {{ me.name }}! Let's see who else is here ...</strong>
       </div> -->
-      <div class="card-group">
+      <div class="row">
         <div v-for="(player, pid) in game.players" 
             v-bind:class="{ 'bg-primary': pid == game.guesser }"
             class="player card col-sm-2">
@@ -38,7 +38,7 @@
           <!-- </div> -->
           <!-- <div class="card-body"> -->
             <img src="/static/image/default_person.png" 
-            style="width: 80%; height: auto; margin:auto">
+            style="width: 80%; max-width: 120px; height: auto; margin:auto">
             <!-- </div> -->
             <!-- <div class="card-footer"> -->
             <p>
@@ -48,7 +48,7 @@
               </button>
             </p>
           <!-- </div> -->
-        </div>
+        </div>    
       </div>
     </div>
 
@@ -81,7 +81,7 @@
       <!-- central card space -->
 
       <div class="card-body">
-        <div class="card-group">
+        <div class="row">
 
           <!-- solution card -->
           <div class="card col-sm-3 bg-info" 
@@ -198,7 +198,8 @@
             Spiel zurücksetzen
           </small>
         </button>
-        <button class="btn btn-primary"
+        <button :disabled="!game.actions.next_phase"
+            class="btn btn-primary"
             @click='execute(game.actions.next_phase)'>
           Phase beenden
         </button>

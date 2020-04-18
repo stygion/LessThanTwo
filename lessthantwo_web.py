@@ -76,9 +76,6 @@ class LessThanTwo_WebAdapter(object):
             players[pid] = player
         return players
 
-
-
-
     def clues(self, viewer_pid):
 
         ## determine viewer privileges
@@ -139,7 +136,7 @@ class LessThanTwo_WebAdapter(object):
     def general_actions(self, viewer_pid):
         phase = self.game.phase
 
-        may_advance_phase = True
+        may_advance_phase = self.game.phase_is_finishable()
         may_restart_game = True
         may_choose_guesser = (
             phase is Phase.CHOOSE_GUESSER

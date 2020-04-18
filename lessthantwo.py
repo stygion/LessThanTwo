@@ -10,7 +10,6 @@ class Phase(IntEnum):
     MAKE_GUESS = 5
     EVALUATION = 6
 
-
 class LessThanTwo(Boardgame):
 
     def __init__(self):
@@ -41,6 +40,20 @@ class LessThanTwo(Boardgame):
                 if this_key != that_key and similar(this_clue, that_clue):
                     self.duplicate_clues.add(this_key)
                     self.duplicate_clues.add(that_key)
+
+    def phase_is_finishable(self):
+        if self.phase is Phase.CHOOSE_GUESSER:
+            return self.guesser_pid is not None
+        if self.phase is Phase.CHOOSE_SOLUTION:
+            return self.solution is not None
+        if self.phase is Phase.GIVE_CLUES:
+            return len(self.clues) + 1 >= len(self.players)
+        if self.phase is Phase.CROP_CLUES:
+            return True
+        if self.phase is Phase.MAKE_GUESS:
+            return self.guess is not None
+        if self.phase is Phase.EVALUATION:
+            return True
 
     def add_clue(self, pid, clue):
         self.clues[pid] = clue
