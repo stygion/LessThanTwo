@@ -166,7 +166,7 @@ class LessThanTwo_WebAdapter(object):
         if may_restart_game:
             actions['reset_game'] = {
                 'description': 'Phase beenden',
-                'method': 'POST',
+                'method': 'DELETE',
                 'url': url_for('reset_game')
             }            
 
