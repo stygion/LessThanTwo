@@ -4,7 +4,7 @@ from boardgame import Boardgame
 
 class Phase(IntEnum):
     CHOOSE_GUESSER = 1
-    CHOOSE_WORD = 2
+    CHOOSE_SOLUTION = 2
     GIVE_CLUES = 3
     CROP_CLUES = 4
     MAKE_GUESS = 5
@@ -15,7 +15,7 @@ class Privilege(Enum):
     RENAME_ANYBODY   = 'RENAME_ANYBODY'
     ADVANCE_PHASE    = 'ADVANCE_PHASE'
     CHOOSE_GUESSER   = 'CHOOSE_GUESSER'
-    CHOOSE_WORD      = 'CHOOSE_WORD'
+    CHOOSE_SOLUTION  = 'CHOOSE_SOLUTION'
     GIVE_CLUE        = 'GIVE_CLUE'
     SEE_SOLUTION     = 'SEE_SOLUTION'
     SEE_OPEN_CLUES   = 'SEE_OPEN_CLUES'
@@ -27,7 +27,7 @@ class Privilege(Enum):
 
 phasentexte = {
     Phase.CHOOSE_GUESSER: 'Wer soll raten?',
-    Phase.CHOOSE_WORD: 'Was soll geraten werden?',
+    Phase.CHOOSE_SOLUTION: 'Was soll geraten werden?',
     Phase.GIVE_CLUES: 'Hinweise abgeben',
     Phase.CROP_CLUES: 'Doppelte streichen',
     Phase.MAKE_GUESS: 'Lösung raten',
@@ -88,9 +88,9 @@ class LessThanTwo(Boardgame):
 
     def nextPhase(self):
         if self.phase == list(Phase)[-1]:
-            self.phase = list(Phase)[0]
             self.reset()
-        self.phase = Phase(self.phase.value + 1)
+        else:            
+            self.phase = Phase(self.phase.value + 1)
         self.incVersion()
 
     ##
@@ -108,11 +108,11 @@ class LessThanTwo(Boardgame):
         if self.phase == Phase.CHOOSE_GUESSER:
             privileges.append(Privilege.CHOOSE_GUESSER)
 
-        elif self.phase == Phase.CHOOSE_WORD:
+        elif self.phase == Phase.CHOOSE_SOLUTION:
             if self.isGuesser(viewer_pid):
                 pass
             else:
-                privileges.append(Privilege.CHOOSE_WORD)
+                privileges.append(Privilege.CHOOSE_SOLUTION)
                 privileges.append(Privilege.SEE_SOLUTION)
 
         elif self.phase == Phase.GIVE_CLUES:
@@ -199,8 +199,8 @@ class LessThanTwo(Boardgame):
                 'url': url_for('choose_guesser')
             }
 
-        if Privilege.CHOOSE_WORD in privileges:
-            actions['choose_word'] = {
+        if Privilege.CHOOSE_SOLUTION in privileges:
+            actions['choose_solution'] = {
                 'method': 'PUT',
                 'url': url_for('choose_solution')
             }

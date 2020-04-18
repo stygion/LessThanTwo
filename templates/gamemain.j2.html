@@ -109,17 +109,20 @@
         </div>
       </div>
 
-      <div v-if="game.actions.choose_word" class="card-body">
-        <input type="text" v-model="game.solution">
+      <div v-if="game.actions.choose_solution" class="card-body">
+        <input type="text" ref="my-solution">
+        <button class="btn btn-primary"
+            @click='execute(game.actions.choose_solution, $refs["my-solution"].value)'>
+          Hinweis abgeben</button>        
       </div>  
       <!-- <div v-else-if="game.solution" class="card-body">
         Zu ratender Begriff: {{ game.solution }}
       </div>         -->
 
       <div v-if="game.actions.give_clue" class="card-body">
-        <input type="text" ref="my_clue">
+        <input type="text" ref="my-clue">
         <button class="btn btn-primary"
-            @click='giveClue(game.actions.give_clue.url, $refs["my_clue"].value)'>
+            @click='giveClue(game.actions.give_clue.url, $refs["my-clue"].value)'>
           Hinweis abgeben</button>
       </div>
 

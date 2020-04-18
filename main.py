@@ -113,7 +113,7 @@ def join():
 ##
 
 @app.route('/default/reset', methods=['POST'])
-def next_phase():
+def next_phase(): 
   print(f'>>> next_phase')
   game.nextPhase()
   return broadcastHead(game)
