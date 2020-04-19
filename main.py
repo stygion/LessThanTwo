@@ -141,6 +141,12 @@ def give_clue():
   game.add_clue(pid(), newVal)
   return broadcastHead(game)
 
+@app.route('/default/clue/<pid>', methods=['DELETE'])
+def remove_clue(pid):
+  print(f'>>> give_clue, body = {pid}')
+  game.remove_clue(pid)
+  return broadcastHead(game)  
+
 @app.route('/default/guess', methods=['PUT'])
 def make_guess():
   newVal = request.json.get('newVal')

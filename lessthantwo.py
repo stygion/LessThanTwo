@@ -59,6 +59,10 @@ class LessThanTwo(Boardgame):
         self.clues[pid] = clue
         self.incVersion()        
 
+    def remove_clue(self, pid):
+        self.clues.pop(pid)
+        self.incVersion()        
+
     def setClueHidden(self, pid, hidden):
         if hidden:
             self.hideClue(pid)
@@ -78,6 +82,9 @@ class LessThanTwo(Boardgame):
         self.incVersion()
 
     def next_phase(self):
+        if not self.phase_is_finishable:
+            return
+
         if self.phase == list(Phase)[-1]:
             self.reset()
         else:            

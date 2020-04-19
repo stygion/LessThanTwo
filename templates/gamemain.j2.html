@@ -110,6 +110,12 @@
             <div class="card-header"  
                 :class="clue.hidden ? 'bg-secondary': 'bg-primary'">
               <small>{{clue.name}}</small>
+              <button v-if="clue.actions.remove" 
+                  class="btn-danger btn-xs float-right"
+                  @click="execute(clue.actions.remove)"
+              >
+                <small>&#x1f5d1;</small>
+              </button>
             </div>
             <div class="card-body">
               <strong>{{clue.word}}</strong>
@@ -117,8 +123,7 @@
             <div v-if="clue.actions && clue.actions.set_hidden" 
                 class="card-footer"  
                 :class="clue.hidden ? 'bg-secondary': 'bg-primary'">
-              <input type="checkbox" 
-                  v-if="clue.actions.set_hidden"
+              <input type="checkbox"
                   v-model="game.clues[clue.pid].hidden" 
                   @change="execute(game.clues[clue.pid].actions.set_hidden, game.clues[clue.pid].hidden)">
                   streichen
@@ -155,11 +160,11 @@
         <div class="card-body">
           Neuer Begriff: 
           <input type="text" id="my-solution" ref="my-solution"
-              @keyup.enter.native='execute(game.actions.choose_solution, $refs["my-solution"].value)'
+              @keyup.enter='execute(game.actions.choose_solution, $refs["my-solution"].value)'
           >
           <button class="btn btn-primary"
-              :disabled="value_non_empty('solution')"
-              @click='execute(game.actions.choose_solution, $refs["my-solution"].value)'>
+              @click='execute(game.actions.choose_solution, $refs["my-solution"].value)'
+          >
             Absenden
           </button>        
         </div>
@@ -170,13 +175,15 @@
           Gib einen Hinweis zum Ratebegriff "{{ game.solution }}" ein!
         </div>
         <div class="card-body">
-          <input type="text" id="my-clue" ref="my-clue"
-              @keyup.enter.native='execute(game.actions.give_clue, $refs["my-clue"].value)'
+          Hinweis:
+          <input type="text" id="my-clue" ref="my-clue" value=""
+              @keyup.enter='execute(game.actions.give_clue, $refs["my-clue"].value)'
           >
           <button class="btn btn-primary"
-              :disabled="value_non_empty('my_guess')"
-              @click='execute(game.actions.give_clue, $refs["my-clue"].value)'>
-          Hinweis abgeben</button>
+              @click='execute(game.actions.give_clue, $refs["my-clue"].value)'
+          >
+            Absenden
+          </button>
         </div>        
       </div>
       
@@ -185,13 +192,13 @@
           Welcher Begriff ist hier wohl gemeint?
         </div>
         <div class="card-body">
+          Begriff:
           <input type="text" id="my-guess" ref="my-guess"
-              @keyup.enter.native="execute(game.actions.make_guess, $refs['my-guess'].value)"
+              @keyup.enter="execute(game.actions.make_guess, $refs['my-guess'].value)"
           >
           <button class="btn btn-primary"
-              :disabled="value_non_empty('my_guess')"
               @click="execute(game.actions.make_guess, $refs['my-guess'].value)">
-            Tipp abgeben</button>
+              Absenden/button>
         </div>        
       </div>
 
@@ -252,12 +259,6 @@
         version: -1,
         players: [],
         clues: [],
-        stage: {
-          actions: {
-            next_phase: true
-          },
-          guesser: null
-        },
         actions: {}
       }
     },
@@ -280,9 +281,9 @@
         }
       },
 
-      value_non_empty: function(ref) {
+      ref_value_empty: function(ref) {
         elem = this.$refs[ref]
-        return elem && elem.value && elem.value.length && elem.value.length >= 2
+        return !elem || !elem.value || !elem.value.length || elem.value.length < 2
       },
 
       toggle_debug: function() {

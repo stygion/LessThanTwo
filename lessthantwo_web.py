@@ -100,19 +100,27 @@ class LessThanTwo_WebAdapter(object):
         clues = {}
         for pid, word in self.game.clues.items():
             clue_is_hidden = pid in self.game.duplicate_clues
+            may_remove_clue = (
+                self.game.phase == Phase.GIVE_CLUES and
+                pid == viewer_pid
+            )
             clue = {
                 'pid': pid,
                 'name': self.game.getPlayerName(pid),
                 'word': word,
                 'hidden': clue_is_hidden,
+                'actions': {}
             } 
+            if may_remove_clue:
+                clue['actions']['remove'] = {
+                    'method': 'DELETE',
+                    'url': url_for('remove_clue', pid=pid)
+                }                
             if may_hide_clues:
-                clue['actions'] = {
-                    'set_hidden': {
-                        'method': 'PUT',
-                        'url': url_for('set_clue_hidden', pid=pid)
-                    }
-                }
+                clue['actions']['set_hidden'] = {
+                    'method': 'PUT',
+                    'url': url_for('set_clue_hidden', pid=pid)
+                }                
             
             clues[pid] = clue
             
