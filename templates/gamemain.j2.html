@@ -38,7 +38,7 @@
           <!-- </div> -->
           <!-- <div class="card-body"> -->
             <img src="/static/image/default_person.png" 
-            style="width: 80%; max-width: 120px; height: auto; margin:auto">
+            style="width: 80%; max-width: 100px; height: auto; margin:auto">
             <!-- </div> -->
             <!-- <div class="card-footer"> -->
             <p>
@@ -51,7 +51,7 @@
         </div>    
       </div>
     </div>
-    
+
     <div class="card mt-3">
       <div class="card-header bg-primary">
         <p><strong>Phase: {{ game.phase && game.phase.description }}</strong></p>
@@ -92,6 +92,17 @@
             </div>
           </div>
 
+          <!-- final guess card -->
+          <div class="card col-sm-3 bg-info" 
+              v-if="game.guess">
+            <div class="card-header bg-info">
+              <small>Geratener Begriff</small>
+            </div>
+            <div class="card-body">
+              <strong>{{ game.guess }}</strong>
+            </div>
+          </div>            
+
           <!-- clue cards -->
           <div v-for="clue in game.clues"
               class="card col-sm-3" 
@@ -114,16 +125,7 @@
             </div>
           </div>
 
-          <!-- final guess card -->
-          <div class="card col-sm-3 bg-info" 
-              v-if="game.guess">
-            <div class="card-header bg-info">
-              <small>Geratener Begriff</small>
-            </div>
-            <div class="card-body">
-              <strong>{{ game.guess }}</strong>
-            </div>
-          </div>          
+        
         </div>
       </div>
           
@@ -152,8 +154,11 @@
         </div>
         <div class="card-body">
           Neuer Begriff: 
-          <input type="text" id="my-solution" ref="my-solution">
+          <input type="text" id="my-solution" ref="my-solution"
+              @keyup.enter.native='execute(game.actions.choose_solution, $refs["my-solution"].value)'
+          >
           <button class="btn btn-primary"
+              :disabled="value_non_empty('solution')"
               @click='execute(game.actions.choose_solution, $refs["my-solution"].value)'>
             Absenden
           </button>        
@@ -165,9 +170,12 @@
           Gib einen Hinweis zum Ratebegriff "{{ game.solution }}" ein!
         </div>
         <div class="card-body">
-          <input type="text" id="my-clue" ref="my-clue">
+          <input type="text" id="my-clue" ref="my-clue"
+              @keyup.enter.native='execute(game.actions.give_clue, $refs["my-clue"].value)'
+          >
           <button class="btn btn-primary"
-          @click='execute(game.actions.give_clue, $refs["my-clue"].value)'>
+              :disabled="value_non_empty('my_guess')"
+              @click='execute(game.actions.give_clue, $refs["my-clue"].value)'>
           Hinweis abgeben</button>
         </div>        
       </div>
@@ -177,8 +185,11 @@
           Welcher Begriff ist hier wohl gemeint?
         </div>
         <div class="card-body">
-          <input type="text" id="my-guess" ref="my-guess">
+          <input type="text" id="my-guess" ref="my-guess"
+              @keyup.enter.native="execute(game.actions.make_guess, $refs['my-guess'].value)"
+          >
           <button class="btn btn-primary"
+              :disabled="value_non_empty('my_guess')"
               @click="execute(game.actions.make_guess, $refs['my-guess'].value)">
             Tipp abgeben</button>
         </div>        
@@ -267,6 +278,11 @@
             self.$set(self.game = resp.data)
           }) 
         }
+      },
+
+      value_non_empty: function(ref) {
+        elem = this.$refs[ref]
+        return elem && elem.value && elem.value.length && elem.value.length >= 2
       },
 
       toggle_debug: function() {
